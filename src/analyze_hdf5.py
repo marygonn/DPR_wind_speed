@@ -93,11 +93,12 @@ class PreprocessedHDF5:
 
     def extract_data_from_hdf5_file_pairs(
         self,
-    ) -> None:
-        self.track_number_to_extracted_data = {
+    ) -> dict[str, ExtractedHDF5Data]:
+        result = {
             track_number: self.extract_data_from_one_hdf5_file_pair(fpath_pair)
             for track_number, fpath_pair in self.track_number_to_DPR_GMI_fpath_pair.items()
         }
+        return result
 
 
     def extract_data_from_one_hdf5_file_pair(
@@ -126,5 +127,4 @@ class PreprocessedHDF5:
             hdf5_data[short_name] = np.array(dpr_file_content[f'/{band_label}/{hdf5_name_part}'])
 
         return ExtractedHDF5Data(**hdf5_data)
-    
     

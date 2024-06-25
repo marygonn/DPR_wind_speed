@@ -6,6 +6,7 @@ ENV PATH="${INSTALL_ROOT}/bin:${PATH}"
 RUN apt-get update && \
     apt-get -y install \
         mc \
+        git \
         curl \
         nano \
         tar \
@@ -38,6 +39,8 @@ RUN pip install \
 
 ARG PROJECT_WORKDIR="/root/dpr_wind_speed"
 RUN mkdir -p ${PROJECT_WORKDIR} && cd ${PROJECT_WORKDIR}
+
+RUN git config --global --add safe.directory ${PROJECT_WORKDIR}
 
 WORKDIR ${PROJECT_WORKDIR}
 #ENTRYPOINT ["python", "-m", "bin.main"]

@@ -1,0 +1,33 @@
+hydra:
+  run:
+    dir: ./output_results_201701_Ka
+    # ^ the output directory where the results will be placed
+
+
+input_HDF5_files:
+  DPR:
+    fpaths_pattern: "./hdf5/raw_DPR/201701/GPMCOR_DPR*"
+    fname_parts_delimiter: "_"
+    track_number_part_idx: 4
+  GMI:
+    fpaths_pattern: "./hdf5/raw_GMI/201701/1C-R*"
+    fname_parts_delimiter: "."
+    track_number_part_idx: -2
+    # ^ (-1) means the last element, (-2) means the 2nd element from the end, etc
+  ice: true
+  # ^ What does this mean? A better name is required
+
+
+HDF5_data_processing:
+  use_Ka: true
+  # ^ if false, 'Ku' will be used
+  corr: -0.7
+
+
+band_processing_output:
+  mss: true
+  kurtosis: true
+
+
+runtime:
+  num_processes: 32

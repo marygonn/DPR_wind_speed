@@ -3,7 +3,7 @@ The code performs calculation of wind speed from normalized radar cross-section 
 
 ## Getting started
 
-(1) Download / copy the HDF5 files to the current directory. You can get test data (10 pairs of HDF5 files) [here](https://cloud.mail.ru/public/1nYa/M7Er1LA8h). You will have a directory structure that may look like this:
+1. Download / copy the HDF5 files to the current directory. You can get test data (10 pairs of HDF5 files) [here](https://cloud.mail.ru/public/1nYa/M7Er1LA8h). You will have a directory structure that may look like this:
 
 ```
 ./
@@ -22,7 +22,7 @@ The code performs calculation of wind speed from normalized radar cross-section 
             └── 1C-R.GPM.GMI.XCAL2016-C.20170101-S160206-E173440.016165.V05A.HDF5
 ```
 
-(2) Specify the corresponding file path (file name) patterns in the [config file](configs/default.yaml):
+2. Specify the corresponding file path (file name) patterns in the [config file](configs/default.yaml):
 
 ```yaml
 input_HDF5_files:
@@ -34,14 +34,14 @@ input_HDF5_files:
     ...
 ```
 
-(3) Build and start the docker container if needed:
+3. Build and start the docker container if needed:
 
 ```bash
 docker build -t dpr_wind_speed .
 docker run --init -it --rm -v $(pwd):/root/dpr_wind_speed --name dpr_wind_speed dpr_wind_speed
 ```
 
-(4) Run the script `main.py` (inside the container):
+4. Run the script `main.py` (inside the container):
 ```bash
 python -m bin.main
 ```

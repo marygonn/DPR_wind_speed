@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-ARG INSTALL_ROOT="${HOME}/.local"
+ARG INSTALL_ROOT="/root/.local"
 ENV PATH="${INSTALL_ROOT}/bin:${PATH}"
 
 RUN apt-get update && \

@@ -6,7 +6,7 @@ from omegaconf import DictConfig
 from loguru import logger
 
 
-from .annotation import DprGmiFilePair, ExtractedHDF5Data
+from .annotation import DprGmiFilePair, ExtractedHDF5Data, OneBandData
 from .defs import MIN_DPR_HDF5_FILE_SIZE_BYTES, EXTRACT_HDF5_DATA_NAME_MAPPING
 from .utils import extract_required_fnames_part
 from .ice_concentration import asi_hdf
@@ -100,7 +100,6 @@ class PreprocessedHDF5:
         }
         return result
 
-
     def extract_data_from_one_hdf5_file_pair(
         self,
         hdf5_fpath_pair: tuple[Path, Path],
@@ -109,7 +108,7 @@ class PreprocessedHDF5:
         gmi_file_content = h5py.File(hdf5_fpath_pair.gmi_fpath, 'r')
 
         hdf5_data = {}
-        if self.cfg.input_HDF5_files.ice:
+        if self.cfg.input_HDF5_files.use_ice_data:
             hdf5_data['latitude_GMI'] = np.array(gmi_file_content['S1/Latitude'])
             hdf5_data['longitude_GMI'] = np.array(gmi_file_content['S1/Longitude'])
             hdf5_data['ice_concentration_GMI'] = asi_hdf(gmi_file_content['S1/Tc'])
@@ -118,13 +117,19 @@ class PreprocessedHDF5:
             hdf5_data['longitude_GMI'] = np.asarray([])
             hdf5_data['ice_concentration_GMI'] = np.asarray([])
 
-        band_label = (
-            'NS'
-            if self.cfg.HDF5_data_processing.use_Ka
-            else 'MS'
-        )
-        for short_name, hdf5_name_part in EXTRACT_HDF5_DATA_NAME_MAPPING.items():
-            hdf5_data[short_name] = np.array(dpr_file_content[f'/{band_label}/{hdf5_name_part}'])
+        band_labels_mapping = {}
+        if self.cfg.HDF5_data_processing.use_Ka:
+            band_labels_mapping['Ka'] = 'NS'
+        if self.cfg.HDF5_data_processing.use_Ku:
+            band_labels_mapping['Ku'] = 'MS'
+
+        for band_name, hdf5_key_label in band_labels_mapping.items():
+            one_band_data = {}
+            for short_name, hdf5_key_name_part in EXTRACT_HDF5_DATA_NAME_MAPPING.items():
+                one_band_data[short_name] = np.array(
+                    dpr_file_content[f'/{hdf5_key_label}/{hdf5_key_name_part}']
+                )
+            hdf5_data[band_name] = OneBandData(**one_band_data)
 
         return ExtractedHDF5Data(**hdf5_data)
     

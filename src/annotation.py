@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 import numpy as np
 
 
@@ -8,7 +8,7 @@ class DprGmiFilePair(NamedTuple):
     gmi_fpath: Path
 
 
-class ExtractedHDF5Data(NamedTuple):
+class OneBandData(NamedTuple):
     latitude: np.ndarray
     longitude: np.ndarray
     sigma: np.ndarray
@@ -16,7 +16,11 @@ class ExtractedHDF5Data(NamedTuple):
     precipitation_rate: np.ndarray
     incidence_angle: np.ndarray
     surface_type: np.ndarray
+
+
+class ExtractedHDF5Data(NamedTuple):
     latitude_GMI: np.ndarray
     longitude_GMI: np.ndarray
     ice_concentration_GMI: np.ndarray
-
+    Ka: Optional[OneBandData] = None
+    Ku: Optional[OneBandData] = None

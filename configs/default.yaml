@@ -3,31 +3,50 @@ hydra:
     dir: ./output_results_201701_Ka
     # ^ the output directory where the results will be placed
 
-
 input_HDF5_files:
   DPR:
     fpaths_pattern: "./hdf5/raw_DPR/201701/GPMCOR_DPR*"
     fname_parts_delimiter: "_"
     track_number_part_idx: 4
+    # ^ the basename of a file is split by the `..._delimiter`
+    #   and the part pointed to by the `..._idx` (0-based) is selected
   GMI:
     fpaths_pattern: "./hdf5/raw_GMI/201701/1C-R*"
     fname_parts_delimiter: "."
     track_number_part_idx: -2
     # ^ (-1) means the last element, (-2) means the 2nd element from the end, etc
-  ice: true
-  # ^ What does this mean? A better name is required
+  use_ice_data: true
+  # ^ Should we calculate the ice concentration?
 
+region_of_interest:
+  longitude_min: -180
+  longitude_max: 180
+  latitude_min: -90
+  latitude_max: 90
 
 HDF5_data_processing:
   use_Ka: true
-  # ^ if false, 'Ku' will be used
-  corr: -0.7
+  use_Ku: false
+  calculate_kurtosis: false
+  calculate_mss: true
+  add_middle_part_of_swath: true
+  max_correlation_coef: -0.7
+  # ^ for the linear regression for data quality control
+  min_r_squared: 0
+  # ^ for the linear regression for data quality control
+  #   (0 means no restriction imposed on the R-squared value)
+  max_incidence_angle: 12.5
 
+window_processing:
+  window_size_along_flight_direction: 5
+  window_size_across_flight_direction: 5
+  window_size_for_result_filtering: 5
+  filter_type: "median"
+  # ^ "mean" or "median", for example
 
-band_processing_output:
-  mss: true
-  kurtosis: true
-
+# band_processing_output:
+#   full_output: true
+# ^ consider this as true always (unconditionally)
 
 runtime:
   num_processes: 32

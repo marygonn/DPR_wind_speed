@@ -61,8 +61,29 @@ class Swath:
     def Select_window(
         self,
         window_center,
-    ) -> np.dnarray:
-        
+    ) -> np.ndarray:
+
+        index_min_flight = window_center.along_flight_direction -\
+                            self.cfg.window_processing.window_size_along_flight_direction * 0.5
+
+        index_max_flight = window_center.along_flight_direction +\
+                            self.cfg.window_processing.window_size_along_flight_direction * 0.5 + 1
+
+        index_min_scan = window_center.across_flight_direction -\
+                            self.cfg.window_processing.window_size_across_flight_direction * 0.5
+
+        index_max_scan = window_center.across_flight_direction +\
+                            self.cfg.window_processing.window_size_across_flight_direction * 0.5 + 1 
+
+        window.incidence_angle = self.chosen_band_data.incidence_angle[index_min_flight:index_max_flight,
+                                                            index_min_scan:index_max_scan]
+
+        window.nrcsdb = self.chosen_band_data.sigma[index_min_flight:index_max_flight,
+                                                    index_min_scan:index_max_scan]
+
+        window.mask = self.mask[index_min_flight:index_max_flight,
+                                index_min_scan:index_max_scan]
+        return window       
 
 
     # def Select_window:

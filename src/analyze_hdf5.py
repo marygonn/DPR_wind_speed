@@ -18,7 +18,7 @@ class PreprocessedHDF5:
     """
     def __init__(
         self,
-        cfg: DictConfig,
+        cfg: DictConfig,  # define a type of variable. Type name is DictConfig. Obtained by Hydra:
     ) -> None:
         """
         Find the DPR-GMI pairs of files.
@@ -130,6 +130,8 @@ class PreprocessedHDF5:
                     dpr_file_content[f'/{hdf5_key_label}/{hdf5_key_name_part}']
                 )
             hdf5_data[band_name] = OneBandData(**one_band_data)
+            # ^ dictionary with keys Ku and Ka. Each contains named tuple of data
 
         return ExtractedHDF5Data(**hdf5_data)
+        # named tuple with GMI and DPR data
     

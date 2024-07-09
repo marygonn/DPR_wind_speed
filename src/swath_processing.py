@@ -69,7 +69,7 @@ class Swath:
         self.mask = np.logical_and.reduce(
             (mask_no_land, mask_no_rain, mask_no_ice, mask_geo)
         )
-        self.index_mask = np.argwhere(self.mask)
+        self.idxs_mask_true = np.argwhere(self.mask)
 
     def select_window(
         self,

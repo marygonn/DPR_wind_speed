@@ -33,7 +33,7 @@ def main(cfg: DictConfig) -> None:
     swath.resample_ice_concentration_DPR()
     swath.create_mask()
 
-    for window_center in swath.index_mask:
+    for window_center in swath.idxs_mask_true:
         window = Window(
             cfg=cfg,
             window_center=window_center,

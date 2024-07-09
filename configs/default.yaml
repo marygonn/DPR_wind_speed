@@ -8,8 +8,8 @@ input_HDF5_files:
     fpaths_pattern: "./hdf5/raw_DPR/201701/GPMCOR_DPR*"
     fname_parts_delimiter: "_"
     track_number_part_idx: 4
-    # ^ the basename of a file is split by the `..._delimiter`
-    #   and the part pointed to by the `..._idx` (0-based) is selected
+    # ^ the basename of a file is split by the `fname_parts_delimiter`
+    #   and the part pointed to by the `track_number_part_idx` (0-based) is selected
   GMI:
     fpaths_pattern: "./hdf5/raw_GMI/201701/1C-R*"
     fname_parts_delimiter: "."
@@ -38,9 +38,10 @@ HDF5_data_processing:
   max_incidence_angle: 12.5
 
 window_processing:
-  window_size_along_flight_direction: 5
-  window_size_across_flight_direction: 5
-  window_size_for_result_filtering: 5
+  window_size:
+    along_flight_direction: 5
+    across_flight_direction: 5
+    for_result_filtering: 5
   filter_type: "median"
   # ^ "mean" or "median", for example
 

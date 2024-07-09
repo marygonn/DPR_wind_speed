@@ -76,10 +76,10 @@ class Swath:
         window_center: Any,
     ) -> np.ndarray:
         window_size_along = (
-            self.cfg.window_processing.window_size_along_flight_direction
+            self.cfg.window_processing.window_size.along_flight_direction
         )
         window_size_across = (
-            self.cfg.window_processing.window_size_across_flight_direction
+            self.cfg.window_processing.window_size.across_flight_direction
         )
 
         index_min_flight = (

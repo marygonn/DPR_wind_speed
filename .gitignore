@@ -2,3 +2,5 @@ __pycache__/
 
 hdf5/*
 output_results_*/*
+.vscode/*
+*/.vscode/*

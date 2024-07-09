@@ -35,6 +35,7 @@ RUN pip install \
     pyresample \
     geopy \
     scikit-learn \
+    black \
     ruff
 
 ARG PROJECT_WORKDIR="/root/dpr_wind_speed"

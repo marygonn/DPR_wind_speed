@@ -16,6 +16,7 @@ class PreprocessedHDF5:
     """
     A class representing a series of preprocessed HDF5 files (or file pairs).
     """
+
     def __init__(
         self,
         cfg: DictConfig,  # define a type of variable. Type name is DictConfig. Obtained by Hydra:
@@ -27,8 +28,10 @@ class PreprocessedHDF5:
 
         DPR_fpaths = glob.glob(cfg.input_HDF5_files.DPR.fpaths_pattern)
         if not DPR_fpaths:
-            raise FileNotFoundError("No DPR HDF5 files matching the specified pattern found")
-        
+            raise FileNotFoundError(
+                "No DPR HDF5 files matching the specified pattern found"
+            )
+
         DPR_track_number_to_fpath = extract_required_fnames_part(
             fpaths=DPR_fpaths,
             delimiter=cfg.input_HDF5_files.DPR.fname_parts_delimiter,
@@ -37,7 +40,9 @@ class PreprocessedHDF5:
 
         GMI_fpaths = glob.glob(cfg.input_HDF5_files.GMI.fpaths_pattern)
         if not GMI_fpaths:
-            raise FileNotFoundError("No GMI HDF5 files matching the specified pattern found")
+            raise FileNotFoundError(
+                "No GMI HDF5 files matching the specified pattern found"
+            )
 
         GMI_track_number_to_fpath = extract_required_fnames_part(
             fpaths=GMI_fpaths,
@@ -50,9 +55,7 @@ class PreprocessedHDF5:
         )
         logger.debug(f"{common_track_numbers=}")
         if not common_track_numbers:
-            raise ValueError(
-                "No common track numbers between DPR and GMI HDF5 files"
-            )
+            raise ValueError("No common track numbers between DPR and GMI HDF5 files")
 
         self._track_number_to_DPR_GMI_fpath_pair = {
             track_number: DprGmiFilePair(
@@ -65,21 +68,24 @@ class PreprocessedHDF5:
 
     def discard_small_files(
         self,
-    ) -> None:
+    ) -> list[str]:
         """
         Discard the DPR-GMI HDF5 file pairs for which the DPR file
         is unexpectedly small.
+        Return the sorted list of the (remaining) track numbers.
         """
         track_numbers_to_exclude = []
 
-        for track_number, fpath_pair in self._track_number_to_DPR_GMI_fpath_pair.items():
-            DPR_fpath = fpath_pair[0]
-            if DPR_fpath.stat().st_size < MIN_DPR_HDF5_FILE_SIZE_BYTES:
+        for (
+            track_number,
+            fpath_pair,
+        ) in self._track_number_to_DPR_GMI_fpath_pair.items():
+            if fpath_pair.dpr_fpath.stat().st_size < MIN_DPR_HDF5_FILE_SIZE_BYTES:
                 track_numbers_to_exclude.append(track_number)
-        
+
         if track_numbers_to_exclude:
             logger.debug(f"{track_numbers_to_exclude=} (filtered out by file size)")
-        
+
         self.track_number_to_DPR_GMI_fpath_pair = {
             track_number: fpath_pair
             for track_number, fpath_pair in self._track_number_to_DPR_GMI_fpath_pair.items()
@@ -90,6 +96,8 @@ class PreprocessedHDF5:
                 "No DPR-GMI HDF5 file pairs left after filtering by size"
                 " (the DPR files are unexpectedly small)"
             )
+
+        return sorted(self.track_number_to_DPR_GMI_fpath_pair.keys())
 
     def extract_data_from_hdf5_file_pairs(
         self,
@@ -104,34 +112,36 @@ class PreprocessedHDF5:
         self,
         hdf5_fpath_pair: tuple[Path, Path],
     ) -> ExtractedHDF5Data:
-        dpr_file_content = h5py.File(hdf5_fpath_pair.dpr_fpath, 'r')
-        gmi_file_content = h5py.File(hdf5_fpath_pair.gmi_fpath, 'r')
+        dpr_file_content = h5py.File(hdf5_fpath_pair.dpr_fpath, "r")
+        gmi_file_content = h5py.File(hdf5_fpath_pair.gmi_fpath, "r")
 
         hdf5_data = {}
         if self.cfg.input_HDF5_files.use_ice_data:
-            hdf5_data['latitude_GMI'] = np.array(gmi_file_content['S1/Latitude'])
-            hdf5_data['longitude_GMI'] = np.array(gmi_file_content['S1/Longitude'])
-            hdf5_data['ice_concentration_GMI'] = asi_hdf(gmi_file_content['S1/Tc'])
+            hdf5_data["latitude_GMI"] = np.array(gmi_file_content["S1/Latitude"])
+            hdf5_data["longitude_GMI"] = np.array(gmi_file_content["S1/Longitude"])
+            hdf5_data["ice_concentration_GMI"] = asi_hdf(gmi_file_content["S1/Tc"])
         else:
-            hdf5_data['latitude_GMI'] = np.asarray([])
-            hdf5_data['longitude_GMI'] = np.asarray([])
-            hdf5_data['ice_concentration_GMI'] = np.asarray([])
+            hdf5_data["latitude_GMI"] = np.asarray([])
+            hdf5_data["longitude_GMI"] = np.asarray([])
+            hdf5_data["ice_concentration_GMI"] = np.asarray([])
 
         band_labels_mapping = {}
         if self.cfg.HDF5_data_processing.use_Ka:
-            band_labels_mapping['Ka'] = 'NS'
+            band_labels_mapping["Ka"] = "NS"
         if self.cfg.HDF5_data_processing.use_Ku:
-            band_labels_mapping['Ku'] = 'MS'
+            band_labels_mapping["Ku"] = "MS"
 
         for band_name, hdf5_key_label in band_labels_mapping.items():
             one_band_data = {}
-            for short_name, hdf5_key_name_part in EXTRACT_HDF5_DATA_NAME_MAPPING.items():
+            for (
+                short_name,
+                hdf5_key_name_part,
+            ) in EXTRACT_HDF5_DATA_NAME_MAPPING.items():
                 one_band_data[short_name] = np.array(
-                    dpr_file_content[f'/{hdf5_key_label}/{hdf5_key_name_part}']
+                    dpr_file_content[f"/{hdf5_key_label}/{hdf5_key_name_part}"]
                 )
             hdf5_data[band_name] = OneBandData(**one_band_data)
             # ^ dictionary with keys Ku and Ka. Each contains named tuple of data
 
         return ExtractedHDF5Data(**hdf5_data)
         # named tuple with GMI and DPR data
-    

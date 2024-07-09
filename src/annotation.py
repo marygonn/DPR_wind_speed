@@ -22,8 +22,11 @@ class ExtractedHDF5Data(NamedTuple):
     latitude_GMI: np.ndarray
     longitude_GMI: np.ndarray
     ice_concentration_GMI: np.ndarray
-    Ka: Optional[OneBandData] = None # by default it is None, if initialized it is a named tuple OneBandData^
+    Ka: Optional[OneBandData] = (
+        None  # by default it is None, if initialized it is a named tuple OneBandData^
+    )
     Ku: Optional[OneBandData] = None
+
 
 class Window(NamedTuple):
     incidence_angle: np.ndarray

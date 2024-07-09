@@ -19,6 +19,5 @@ def extract_required_fnames_part(
         basename_parts = basename.split(delimiter)
         track_number = basename_parts[part_name_idx]
         result[track_number] = fpath
-    
-    return result
 
+    return result

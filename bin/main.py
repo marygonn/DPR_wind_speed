@@ -20,15 +20,14 @@ def main(cfg: DictConfig) -> None:
 
     preprocessed_hdf5 = PreprocessedHDF5(cfg)
     track_numbers = preprocessed_hdf5.discard_small_files()
-    selected_track_number = track_numbers[0]  # noqa: F841
-    track_number_to_hdf5_data = (
-        preprocessed_hdf5.extract_data_from_hdf5_file_pairs()
-    )  # noqa: F841
+    selected_track_number = track_numbers[0]
+    hdf5_data_one_track = preprocessed_hdf5.extract_data_for_one_track(
+        selected_track_number
+    )
 
-    # the swath class constructor should take `cfg` and one track data like `track_number_to_hdf5_data['016156']`
     swath = Swath(
         cfg=cfg,
-        one_track_data=track_number_to_hdf5_data["016156"],
+        one_track_data=hdf5_data_one_track,
         band_label="Ka",
     )
     swath.resample_ice_concentration_DPR()
